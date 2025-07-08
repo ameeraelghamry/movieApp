@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import Search from './assets/components/search.jsx'
+import React, { useEffect, useState } from 'react';
+import Search from './assets/components/search.jsx';
+import Spinner from './assets/components/spinner.jsx';
+import MovieCard from './assets/components/movieCard.jsx';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -10,10 +12,9 @@ const API_OPTIONS = {
     accept: 'application/json',
     Authorization: `Bearer ${API_KEY}`
   }
-}
+};
 
 const App = () => {
-
   const [searchTerm, setSearchTerm] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [movieList, setMovieList] = useState([]);
@@ -33,14 +34,13 @@ const App = () => {
 
       const data = await response.json();
       setMovieList(data.results || []);
-
     } catch (error) {
       console.error(`Error fetching movies: ${error}`);
       setErrorMessage('Error fetching movies. Please try again later.');
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchMovies();
@@ -58,24 +58,26 @@ const App = () => {
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
 
-        <section className='all-movies'>
+        <section className='mt-[40px] all-movies'>
           <h2>All Movies</h2>
 
           {isLoading ? (
-            <p className='text-white'>Loading...</p>
+            <Spinner />
           ) : errorMessage ? (
             <p className='text-red-500'>{errorMessage}</p>
           ) : (
-            <ul>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {movieList.map((movie) => (
-                <p className='text-white' key={movie.id}>{movie.title}</p>
+                <li key={movie.id}>
+                  <MovieCard movie={movie} />
+                </li>
               ))}
             </ul>
           )}
         </section>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default App
+export default App;
