@@ -3,7 +3,7 @@
 A modern React application to search for movies using the [TMDB API](https://developers.themoviedb.org/3), track trending searches with [Appwrite](https://appwrite.io/), and ensure performance with debounced search input.
 
 ---
-##Tech Stack
+## Tech Stack
 
 - **React** – Frontend framework  
 - **TMDB API** – Source of movie data  
