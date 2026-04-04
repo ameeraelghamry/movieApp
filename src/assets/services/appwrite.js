@@ -1,4 +1,4 @@
-import { Client, Databases, ID, Query } from 'appwrite';
+import { Client, Databases, ID, Query, Account } from 'appwrite';
 
 // Environment variables
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -7,11 +7,50 @@ const COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
 const ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
 
 // Initialize Appwrite client
-const client = new Client()
+const client = new Client();
+client
     .setEndpoint(ENDPOINT)
     .setProject(PROJECT_ID);
 
+// Initialize account service
+const account = new Account(client);
 const databases = new Databases(client);
+
+// 3️⃣ Signup function
+export const signup = async ({ email, password, name }) => {
+    try {
+        const user = await account.create(
+            "unique()", // Appwrite generates unique user ID
+            email,
+            password,
+            name
+        );
+        return user;
+    } catch (err) {
+        throw err;
+    }
+};
+
+// 4️⃣ Login function
+export const login = async ({ email, password }) => {
+    try {
+        const session = await account.createEmailSession(email, password);
+        // Get current user
+        const user = await account.get();
+        return { session, user };
+    } catch (err) {
+        throw err;
+    }
+};
+
+// 5️⃣ Logout function
+export const logout = async () => {
+    try {
+        await account.deleteSession("current");
+    } catch (err) {
+        throw err;
+    }
+};
 
 // Function to update or create a document for search tracking
 export const updateSearchCount = async (searchTerm, movie) => {
