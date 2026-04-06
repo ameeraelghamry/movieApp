@@ -4,6 +4,7 @@ import Spinner from '../components/spinner.jsx';
 import MovieCard from '../components/movieCard.jsx';
 import { useDebounce } from 'react-use';
 import { getTrendingMovies, updateSearchCount } from './../services/appwrite.js';
+import ResponsiveAppBar from '../components/appBar.jsx';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -74,47 +75,50 @@ const home = () => {
     }, []);
 
     return (
-        <div className='wrapper'>
-            <header>
-                <img src='/hero-img.png' alt='hero banner' />
-                <h1>
-                    Find <span className='text-gradient'>Movies</span> You'll Enjoy Without The Hassle
-                </h1>
-                <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-            </header>
+        <>
+            <ResponsiveAppBar />
+            <div className='wrapper pt-0'>
+                <header>
+                    <img src='/hero-img.png' alt='hero banner' />
+                    <h1>
+                        Find <span className='text-gradient'>Movies</span> You'll Enjoy Without The Hassle
+                    </h1>
+                    <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                </header>
 
-            {trendingMovies.length > 0 && (
-                <section className='trending'>
-                    <h2>Trending Movies</h2>
-                    <ul>
-                        {trendingMovies.map((movie, index) => (
-                            <li key={movie.$id}>
-                                <p>{index + 1}</p>
-                                <img src={movie.poster_url} alt={movie.title} />
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            )}
-
-            <section className='mt-[40px] all-movies'>
-                <h2>All Movies</h2>
-
-                {isLoading ? (
-                    <Spinner />
-                ) : errorMessage ? (
-                    <p className='text-red-500'>{errorMessage}</p>
-                ) : (
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {movieList.map((movie) => (
-                            <li key={movie.id}>
-                                <MovieCard movie={movie} />
-                            </li>
-                        ))}
-                    </ul>
+                {trendingMovies.length > 0 && (
+                    <section className='trending'>
+                        <h2>Trending Movies</h2>
+                        <ul>
+                            {trendingMovies.map((movie, index) => (
+                                <li key={movie.$id}>
+                                    <p>{index + 1}</p>
+                                    <img src={movie.poster_url} alt={movie.title} />
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
                 )}
-            </section>
-        </div>
+
+                <section className='mt-[40px] all-movies'>
+                    <h2>All Movies</h2>
+
+                    {isLoading ? (
+                        <Spinner />
+                    ) : errorMessage ? (
+                        <p className='text-red-500'>{errorMessage}</p>
+                    ) : (
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {movieList.map((movie) => (
+                                <li key={movie.id}>
+                                    <MovieCard movie={movie} />
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+            </div>
+        </>
     );
 };
 
