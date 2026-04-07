@@ -5,6 +5,7 @@ import MovieCard from '../components/movieCard.jsx';
 import { useDebounce } from 'react-use';
 import { getTrendingMovies, updateSearchCount } from './../services/appwrite.js';
 import ResponsiveAppBar from '../components/appBar.jsx';
+import { Link } from 'react-router-dom';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -75,50 +76,65 @@ const home = () => {
     }, []);
 
     return (
-        <>
-            <ResponsiveAppBar />
-            <div className='wrapper pt-0'>
-                <header>
-                    <img src='/hero-img.png' alt='hero banner' />
-                    <h1>
-                        Find <span className='text-gradient'>Movies</span> You'll Enjoy Without The Hassle
-                    </h1>
-                    <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-                </header>
 
-                {trendingMovies.length > 0 && (
-                    <section className='trending'>
-                        <h2>Trending Movies</h2>
-                        <ul>
-                            {trendingMovies.map((movie, index) => (
-                                <li key={movie.$id}>
-                                    <p>{index + 1}</p>
-                                    <img src={movie.poster_url} alt={movie.title} />
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
-                )}
+        <div className='wrapper pt-0'>
+            <header>
+                <img src='/hero-img.png' alt='hero banner' />
+                <h1>
+                    Find <span className='text-gradient'>Movies</span> You'll Enjoy Without The Hassle
+                </h1>
+                <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            </header>
 
-                <section className='mt-[40px] all-movies'>
-                    <h2>All Movies</h2>
+            {trendingMovies.length > 0 && (
+                <section className="trending">
+                    <h2>Trending Movies</h2>
+                    <ul>
+                        {trendingMovies.map((movie, index) => (
+                            <li key={movie.$id}>
+                                {/* The Link wraps BOTH the number and the image */}
+                                <Link
+                                    to={`/movie/${movie.tmdb_id || movie.movie_id}`}
+                                    className="group flex flex-row items-center transition-all duration-300 ease-out hover:scale-110 hover:z-10"
+                                >
+                                    {/* The Number (p) */}
+                                    <p className="transition-transform duration-300 group-hover:translate-x-[-10px]">
+                                        {index + 1}
+                                    </p>
 
-                    {isLoading ? (
-                        <Spinner />
-                    ) : errorMessage ? (
-                        <p className='text-red-500'>{errorMessage}</p>
-                    ) : (
-                        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {movieList.map((movie) => (
-                                <li key={movie.id}>
-                                    <MovieCard movie={movie} />
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                                    {/* The Poster (img) */}
+                                    <img
+                                        src={movie.poster_url}
+                                        alt={movie.title}
+                                        className="shadow-lg shadow-black/50"
+                                    />
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
                 </section>
-            </div>
-        </>
+            )}
+            <section className='mt-[40px] all-movies'>
+                <h2>All Movies</h2>
+
+                {isLoading ? (
+                    <Spinner />
+                ) : errorMessage ? (
+                    <p className='text-red-500'>{errorMessage}</p>
+                ) : (
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {movieList.map((movie) => (
+                            <li key={movie.id}>
+                                {/* Directs to /movie/[id] */}
+                                <Link to={`/movie/${movie.id}`} className="block transition-transform hover:scale-105">
+                                    <MovieCard movie={movie} />
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </section>
+        </div>
     );
 };
 

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from 'react-router-dom' // Ensure react-router-dom is installed
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
@@ -12,7 +13,7 @@ import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
 
-const pages = ['Watchlist', 'Pricing Plans', 'About Us']
+const pages = ['Home', 'Pricing Plans', 'About Us']
 const settings = ['My Profile', 'Logout']
 
 function ResponsiveAppBar() {
@@ -34,28 +35,41 @@ function ResponsiveAppBar() {
         setAnchorElUser(null)
     }
 
+    // Helper to format paths for the navigation links
+    const getPagePath = (page) => {
+        if (page === 'Home') return '/';
+        return `/${page.toLowerCase().replace(/\s+/g, '-')}`;
+    };
+
     return (
-        <AppBar position="static" sx={{ background: 'linear-gradient(to right, #030012 0%, #090327 30%, #090327 70%, #030012 100%)', margin: 0 }}>
+        <AppBar position="static" sx={{ background: 'linear-gradient(to right, #030012 0%, #090327 30%, #090327 70%, #030012 100%)', margin: 0, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
 
                     {/* --- DESKTOP LOGO SECTION --- */}
                     <Box
-                        component="img"
+                        component={Link}
+                        to="/"
                         sx={{
                             display: { xs: 'none', md: 'flex' },
                             mr: 1,
-                            height: 20, // Adjust height as needed
-                            width: 'auto'
+                            alignItems: 'center',
+                            textDecoration: 'none'
                         }}
-                        alt="Logo"
-                        src="/logo.png"
-                    />
+                    >
+                        <Box
+                            component="img"
+                            sx={{ height: 20, width: 'auto' }}
+                            alt="Logo"
+                            src="/logo.png"
+                        />
+                    </Box>
+
                     <Typography
                         variant="h6"
                         noWrap
-                        component="a"
-                        href="/"
+                        component={Link}
+                        to="/"
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -95,10 +109,16 @@ function ResponsiveAppBar() {
                             onClose={handleCloseNavMenu}
                             sx={{
                                 display: { xs: 'block', md: 'none' },
+                                "& .MuiPaper-root": { backgroundColor: '#090327', color: 'white' }
                             }}
                         >
                             {pages.map((page) => (
-                                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                                <MenuItem
+                                    key={page}
+                                    onClick={handleCloseNavMenu}
+                                    component={Link}
+                                    to={getPagePath(page)}
+                                >
                                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                                 </MenuItem>
                             ))}
@@ -106,22 +126,30 @@ function ResponsiveAppBar() {
 
                         {/* --- MOBILE LOGO SECTION --- */}
                         <Box
-                            component="img"
+                            component={Link}
+                            to="/"
                             sx={{
                                 display: { xs: 'flex', md: 'none' },
                                 mr: 1,
-                                height: 30, // Slightly smaller for mobile
-                                width: 'auto',
-                                alignSelf: 'center'
+                                alignSelf: 'center',
+                                textDecoration: 'none',
+                                display: 'flex',
+                                alignItems: 'center'
                             }}
-                            alt="Logo"
-                            src="/logo.png"
-                        />
+                        >
+                            <Box
+                                component="img"
+                                sx={{ height: 30, width: 'auto' }}
+                                alt="Logo"
+                                src="/logo.png"
+                            />
+                        </Box>
+
                         <Typography
                             variant="h5"
                             noWrap
-                            component="a"
-                            href="/"
+                            component={Link}
+                            to="/"
                             sx={{
                                 mr: 2,
                                 display: { xs: 'flex', md: 'none' },
@@ -129,6 +157,7 @@ function ResponsiveAppBar() {
                                 fontWeight: 700,
                                 color: 'inherit',
                                 textDecoration: 'none',
+                                alignSelf: 'center'
                             }}
                         >
                             myNetflix
@@ -136,12 +165,14 @@ function ResponsiveAppBar() {
                     </Box>
 
                     {/* Desktop Navigation Pages */}
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', gap: 9, mr: 15 }}>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', gap: 9, mr: 10 }}>
                         {pages.map((page) => (
                             <Button
                                 key={page}
+                                component={Link}
+                                to={getPagePath(page)}
                                 onClick={handleCloseNavMenu}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
+                                sx={{ my: 2, color: 'white', display: 'block', '&:hover': { color: '#cecefb' } }}
                             >
                                 {page}
                             </Button>
