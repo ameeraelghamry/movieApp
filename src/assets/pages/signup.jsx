@@ -1,37 +1,78 @@
 import { useState } from "react";
-import { Box, TextField, Button, Typography, useTheme, useMediaQuery, Checkbox } from "@mui/material";
+import { Box, TextField, Button, Typography, useTheme, useMediaQuery, Checkbox, Alert, CircularProgress } from "@mui/material";
 import { signup } from "../services/appwrite";
-
-//---------------------------------------------------------backend implented but still needs work.---------------------------------------------------------
-//make sure terms and conditions must be checked
-//implement continue with google functionality
-//display error message if password and confirm password do not match 
-//display error message if user exists
-//display error message if email is not valid
-//display error message if password is too weak
-//display error message if any field is empty
+import { useNavigate, Link } from "react-router-dom";
 
 const Signup = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const navigate = useNavigate();
+
+  // Form States
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [agree, setAgree] = useState(false);
 
-  const handleSignup = async () => {
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
+  // Status States
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSignup = async (e) => {
+    if (e) e.preventDefault();
+    setError("");
+
+    // 1. Validation: Empty Fields
+    if (!name || !email || !password || !confirmPassword) {
+      setError("Please fill in all required fields.");
       return;
     }
+
+    // 2. Validation: Passwords Match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    // 3. Validation: Password Strength (Basic)
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    // 4. Validation: Terms & Conditions
+    if (!agree) {
+      setError("You must agree to the terms and conditions.");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const user = await signup({ email, password, name });
-      console.log("User created:", user);
-    } catch (error) {
-      console.error("Error creating user:", error);
+      // 5. Appwrite Signup Call
+      await signup({ email, password, name });
+
+      alert("Account created successfully! Please log in.");
+      navigate("/login");
+    } catch (err) {
+      // 6. Handle Appwrite specific errors (User already exists, Invalid email, etc.)
+      setError(err.message);
+      console.error("Signup Error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // mobile/tablet breakpoint
+  // Reusable Input Styles
+  const inputStyles = {
+    input: { color: "#fff" },
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": { borderColor: "#8692a6" },
+      "&:hover fieldset": { borderColor: "#fff" },
+      "&.Mui-focused fieldset": { borderColor: "#5871eb" },
+    },
+    mb: 2,
+  };
 
   return (
     <Box
@@ -49,26 +90,20 @@ const Signup = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          py: isMobile ? 6 : 0, // vertical padding for mobile
+          py: isMobile ? 6 : 5,
         }}
       >
         <Box
+          component="form"
+          onSubmit={handleSignup}
           sx={{
             width: isMobile ? "90%" : 400,
             display: "flex",
             flexDirection: "column",
           }}
         >
-          {/* Logo */}
-          <div className="flex items-center mb-4">
-            <img src="/logo.png" alt="logo" className="w-8 h-8 object-contain" />
-            <h1 className="text-white text-2xl font-bold m-0 leading-tight ml-2">
-              myNetflix
-            </h1>
-          </div>
-
           {/* Heading */}
-          <Box>
+          <Box sx={{ mb: 3 }}>
             <Typography variant="h4" sx={{ color: "#fff", fontWeight: 600 }}>
               Welcome! 👋
             </Typography>
@@ -77,85 +112,62 @@ const Signup = () => {
             </Typography>
           </Box>
 
-          {/* Name */}
-          <Box>
-            <Typography sx={{ color: "#fff", mb: 1 }}>Name*</Typography>
-            <TextField
-              label="Name" value={name} onChange={(e) => setName(e.target.value)}
-              fullWidth
-              placeholder="Enter name"
-              variant="outlined"
-              sx={{
-                input: { color: "#fff" },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#8692a6" },
-                  "&:hover fieldset": { borderColor: "#8692a6" },
-                  "&.Mui-focused fieldset": { borderColor: "#8692a6" },
-                },
-              }}
-            />
-          </Box>
+          {/* Error Alert */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 3, borderRadius: "8px" }}>
+              {error}
+            </Alert>
+          )}
 
-          {/* Email */}
-          <Box>
-            <Typography sx={{ color: "#fff", mb: 1 }}>Email address*</Typography>
-            <TextField
-              label="Email" value={email} onChange={(e) => setEmail(e.target.value)}
-              fullWidth
-              placeholder="Enter email"
-              variant="outlined"
-              sx={{
-                input: { color: "#fff" },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#8692a6" },
-                  "&:hover fieldset": { borderColor: "#8692a6" },
-                  "&.Mui-focused fieldset": { borderColor: "#8692a6" },
-                },
-              }}
-            />
-          </Box>
+          <Typography sx={{ color: "#fff", mb: 1 }}>Full Name*</Typography>
+          <TextField
+            placeholder="Enter name"
+            variant="outlined"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            sx={inputStyles}
+          />
 
-          {/* Password */}
-          <Box>
-            <Typography sx={{ color: "#fff", mb: 1 }}> Create Password*</Typography>
-            <TextField
-              type="password" label="Password" value={password} onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              placeholder="Enter password"
-              variant="outlined"
-              sx={{
-                input: { color: "#fff" },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#8692a6" },
-                  "&:hover fieldset": { borderColor: "#8692a6" },
-                  "&.Mui-focused fieldset": { borderColor: "#8692a6" },
-                },
-              }}
-            />
-          </Box>
+          <Typography sx={{ color: "#fff", mb: 1 }}>Email address*</Typography>
+          <TextField
+            placeholder="Enter email"
+            variant="outlined"
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={inputStyles}
+          />
 
-          <Box>
-            <Typography sx={{ color: "#fff", mb: 1 }}> Confirm Password*</Typography>
-            <TextField
-              type="password" label="Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+          <Typography sx={{ color: "#fff", mb: 1 }}>Create Password*</Typography>
+          <TextField
+            type="password"
+            placeholder="Enter password"
+            variant="outlined"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={inputStyles}
+          />
 
-              fullWidth
-              placeholder="Passwords must match"
-              variant="outlined"
-              sx={{
-                input: { color: "#fff" },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#8692a6" },
-                  "&:hover fieldset": { borderColor: "#8692a6" },
-                  "&.Mui-focused fieldset": { borderColor: "#8692a6" },
-                },
-              }}
-            />
-          </Box>
+          <Typography sx={{ color: "#fff", mb: 1 }}>Confirm Password*</Typography>
+          <TextField
+            type="password"
+            placeholder="Passwords must match"
+            variant="outlined"
+            fullWidth
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            sx={inputStyles}
+          />
 
           {/* Checkbox */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Checkbox sx={{ color: "white", "&.Mui-checked": { color: "white" } }} />
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <Checkbox
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
+              sx={{ color: "#8692a6", "&.Mui-checked": { color: "#5871eb" } }}
+            />
             <Typography sx={{ color: "#fff", fontSize: 14 }}>
               I agree to terms & conditions
             </Typography>
@@ -163,54 +175,55 @@ const Signup = () => {
 
           {/* Signup Button */}
           <Button
+            type="submit"
             variant="contained"
-            onClick={handleSignup}
+            disabled={loading}
             sx={{
               backgroundColor: "#5871eb",
               height: 56,
               textTransform: "none",
+              fontSize: "1rem",
+              fontWeight: 600,
+              "&:hover": { backgroundColor: "#465bc7" },
             }}
           >
-            Sign Up
+            {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
           </Button>
 
           {/* Divider */}
-          <Box className="flex items-center w-full max-w-md mx-auto my-2">
-            <div className="flex-1 h-px bg-gray-500" />
-            <span className="px-4 text-gray-400 text-lg">OR</span>
-            <div className="flex-1 h-px bg-gray-500" />
+          <Box sx={{ display: "flex", alignItems: "center", my: 3 }}>
+            <Box sx={{ flex: 1, height: "1px", bgcolor: "#8692a6", opacity: 0.3 }} />
+            <Typography sx={{ px: 2, color: "#8692a6", fontSize: 14 }}>OR</Typography>
+            <Box sx={{ flex: 1, height: "1px", bgcolor: "#8692a6", opacity: 0.3 }} />
           </Box>
 
-          {/* Google */}
           <Button
+            component={Link}
+            to="/login"
             variant="outlined"
             sx={{
               color: "#fff",
-              borderColor: "#fff",
+              borderColor: "#8692a6",
               textTransform: "none",
               height: 56,
+              "&:hover": { borderColor: "#fff" },
             }}
           >
-            Continue with Google
+            Have an account? Log in
           </Button>
         </Box>
       </Box>
 
       {/* Right Side - Image */}
       {!isMobile && (
-        <Box
-          sx={{
-            width: "50%",
-            height: "100vh",
-          }}
-        >
+        <Box sx={{ width: "50%", height: "100vh" }}>
           <img
             src="/collection.jpg"
             alt="side"
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              objectFit: "scale-down",
             }}
           />
         </Box>
