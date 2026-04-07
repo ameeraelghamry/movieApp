@@ -2,29 +2,48 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
 
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
+  /* YOUR ORIGINAL THEME */
   --color-primary: #030014;
-
   --color-light-100: #cecefb;
   --color-light-200: #a8b5db;
-
   --color-gray-100: #9ca4ab;
-
   --color-dark-100: #0f0d23;
-
-  --font-dm-sans: DM Sans, sans-serif;
-
+  --font-dm-sans: "DM Sans", sans-serif;
   --breakpoint-xs: 480px;
-
   --background-image-hero-pattern: url("/BG.png");
+
+  /* SHADCN COMPATIBILITY MAPPINGS */
+  /* This ensures shadcn components use your colors */
+  --color-background: var(--color-primary);
+  --color-foreground: oklch(0.985 0 0);
+  --color-card: var(--color-dark-100);
+  --color-card-foreground: oklch(0.985 0 0);
+  --color-popover: var(--color-dark-100);
+  --color-popover-foreground: oklch(0.985 0 0);
+  --color-secondary: var(--color-dark-100);
+  --color-secondary-foreground: oklch(0.985 0 0);
+  --color-muted: var(--color-dark-100);
+  --color-muted-foreground: var(--color-gray-100);
+  --color-accent: var(--color-light-100);
+  --color-accent-foreground: var(--color-primary);
+  --color-ring: var(--color-light-100);
+  --radius-lg: 0.625rem;
+  --radius-md: calc(0.625rem - 2px);
+  --radius-sm: calc(0.625rem - 4px);
 }
 
 @layer base {
+
+  /* Your original base styles */
   body {
     font-family: "DM Sans", serif;
     font-optical-sizing: auto;
     background: #030014;
+    color: white;
+    margin: 0;
   }
 
   h1 {
@@ -46,9 +65,16 @@
   header img {
     @apply w-full max-w-lg h-auto object-contain mx-auto drop-shadow-md;
   }
+
+  /* Shadcn border reset */
+  * {
+    border-color: var(--color-border);
+  }
 }
 
 @layer components {
+
+  /* Your original component classes */
   .pattern {
     @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
   }
@@ -89,7 +115,7 @@
     }
 
     & input {
-      @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-hidden;
+      @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-none;
     }
   }
 
@@ -100,7 +126,6 @@
   .all-movies ul {
     @apply grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
   }
-
 
   .movie-card {
     @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10;
