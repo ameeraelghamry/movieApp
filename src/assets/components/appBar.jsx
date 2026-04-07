@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom' // Ensure react-router-dom is installed
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { logout } from '../services/appwrite'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
@@ -14,11 +15,29 @@ import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
 
 const pages = ['Home', 'Pricing Plans', 'About Us']
-const settings = ['My Profile', 'Logout']
 
 function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = React.useState(null)
     const [anchorElUser, setAnchorElUser] = React.useState(null)
+
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // --- FUNCTIONAL UPDATES START ---
+
+    // 1. Check if user exists in localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    const isLoggedIn = !!user;
+
+    // 2. Determine settings menu items based on login status
+    const settings = isLoggedIn
+        ? ['My Profile', 'Logout']
+        : ['Login', 'Signup'];
+
+    // Determine if we should hide the User Menu (Login and Signup pages)
+    const hideUserMenu = location.pathname === '/login' || location.pathname === '/signup';
+
+    // --- FUNCTIONAL UPDATES END ---
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget)
@@ -31,11 +50,29 @@ function ResponsiveAppBar() {
         setAnchorElNav(null)
     }
 
+    const handleSettingClick = async (setting) => {
+        handleCloseUserMenu();
+        if (setting === 'Logout') {
+            try {
+                await logout();
+                localStorage.removeItem("user"); // Clear storage on logout
+                navigate('/login');
+            } catch (error) {
+                console.error("Logout failed:", error.message);
+            }
+        } else if (setting === 'Login') {
+            navigate('/login');
+        } else if (setting === 'Signup') {
+            navigate('/signup');
+        } else if (setting === 'My Profile') {
+            navigate('/profile');
+        }
+    };
+
     const handleCloseUserMenu = () => {
         setAnchorElUser(null)
     }
 
-    // Helper to format paths for the navigation links
     const getPagePath = (page) => {
         if (page === 'Home') return '/';
         return `/${page.toLowerCase().replace(/\s+/g, '-')}`;
@@ -46,125 +83,35 @@ function ResponsiveAppBar() {
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
 
-                    {/* --- DESKTOP LOGO SECTION --- */}
-                    <Box
-                        component={Link}
-                        to="/"
-                        sx={{
-                            display: { xs: 'none', md: 'flex' },
-                            mr: 1,
-                            alignItems: 'center',
-                            textDecoration: 'none'
-                        }}
-                    >
-                        <Box
-                            component="img"
-                            sx={{ height: 20, width: 'auto' }}
-                            alt="Logo"
-                            src="/logo.png"
-                        />
+                    {/* Desktop Logo */}
+                    <Box component={Link} to="/" sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, alignItems: 'center', textDecoration: 'none' }}>
+                        <Box component="img" sx={{ height: 20, width: 'auto' }} alt="Logo" src="/logo.png" />
                     </Box>
 
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component={Link}
-                        to="/"
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'none', md: 'flex' },
-                            fontWeight: 700,
-                            color: 'inherit',
-                            textDecoration: 'none',
-                        }}
-                    >
+                    <Typography variant="h6" noWrap component={Link} to="/" sx={{ mr: 2, display: { xs: 'none', md: 'flex' }, fontWeight: 700, color: 'inherit', textDecoration: 'none' }}>
                         myNetflix
                     </Typography>
 
-                    {/* Mobile Menu Icon and Logo */}
+                    {/* Mobile Menu */}
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleOpenNavMenu}
-                            color="inherit"
-                        >
+                        <IconButton size="large" onClick={handleOpenNavMenu} color="inherit">
                             <MenuIcon />
                         </IconButton>
                         <Menu
-                            id="menu-appbar"
                             anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
                             open={Boolean(anchorElNav)}
                             onClose={handleCloseNavMenu}
-                            sx={{
-                                display: { xs: 'block', md: 'none' },
-                                "& .MuiPaper-root": { backgroundColor: '#090327', color: 'white' }
-                            }}
+                            sx={{ display: { xs: 'block', md: 'none' }, "& .MuiPaper-root": { backgroundColor: '#090327', color: 'white' } }}
                         >
                             {pages.map((page) => (
-                                <MenuItem
-                                    key={page}
-                                    onClick={handleCloseNavMenu}
-                                    component={Link}
-                                    to={getPagePath(page)}
-                                >
+                                <MenuItem key={page} onClick={handleCloseNavMenu} component={Link} to={getPagePath(page)}>
                                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                                 </MenuItem>
                             ))}
                         </Menu>
-
-                        {/* --- MOBILE LOGO SECTION --- */}
-                        <Box
-                            component={Link}
-                            to="/"
-                            sx={{
-                                display: { xs: 'flex', md: 'none' },
-                                mr: 1,
-                                alignSelf: 'center',
-                                textDecoration: 'none',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}
-                        >
-                            <Box
-                                component="img"
-                                sx={{ height: 30, width: 'auto' }}
-                                alt="Logo"
-                                src="/logo.png"
-                            />
-                        </Box>
-
-                        <Typography
-                            variant="h5"
-                            noWrap
-                            component={Link}
-                            to="/"
-                            sx={{
-                                mr: 2,
-                                display: { xs: 'flex', md: 'none' },
-                                flexGrow: 1,
-                                fontWeight: 700,
-                                color: 'inherit',
-                                textDecoration: 'none',
-                                alignSelf: 'center'
-                            }}
-                        >
-                            myNetflix
-                        </Typography>
                     </Box>
 
-                    {/* Desktop Navigation Pages */}
+                    {/* Desktop Navigation */}
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', gap: 9, mr: 10 }}>
                         {pages.map((page) => (
                             <Button
@@ -179,36 +126,28 @@ function ResponsiveAppBar() {
                         ))}
                     </Box>
 
-                    {/* User Settings */}
-                    <Box sx={{ flexGrow: 0 }}>
-                        <Tooltip title="Open settings">
-                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="User Avatar" src="https://picsum.photos/200/300" />
-                            </IconButton>
-                        </Tooltip>
-                        <Menu
-                            sx={{ mt: '45px' }}
-                            id="menu-appbar"
-                            anchorEl={anchorElUser}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean(anchorElUser)}
-                            onClose={handleCloseUserMenu}
-                        >
-                            {settings.map((setting) => (
-                                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                                </MenuItem>
-                            ))}
-                        </Menu>
-                    </Box>
+                    {/* --- CONDITIONALLY RENDERED USER SECTION --- */}
+                    {!hideUserMenu && (
+                        <Box sx={{ flexGrow: 0 }}>
+                            <Tooltip title="Open settings">
+                                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                    <Avatar alt="User Avatar" src="https://picsum.photos/200/300" />
+                                </IconButton>
+                            </Tooltip>
+                            <Menu
+                                sx={{ mt: '45px' }}
+                                anchorEl={anchorElUser}
+                                open={Boolean(anchorElUser)}
+                                onClose={handleCloseUserMenu}
+                            >
+                                {settings.map((setting) => (
+                                    <MenuItem key={setting} onClick={() => handleSettingClick(setting)}>
+                                        <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                                    </MenuItem>
+                                ))}
+                            </Menu>
+                        </Box>
+                    )}
                 </Toolbar>
             </Container>
         </AppBar>
