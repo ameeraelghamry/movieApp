@@ -76,7 +76,6 @@ const home = () => {
     }, []);
 
     return (
-
         <div className='wrapper pt-0'>
             <header>
                 <img src='/hero-img.png' alt='hero banner' />
@@ -91,18 +90,17 @@ const home = () => {
                     <h2>Trending Movies</h2>
                     <ul>
                         {trendingMovies.map((movie, index) => (
-                            <li key={movie.$id}>
-                                {/* The Link wraps BOTH the number and the image */}
+                            <li key={movie.$id} className="relative group/trending">
+                                {/* 1. THE BACKGROUND GLOW (Trending) */}
+                                <div className="absolute inset-0 bg-light-100/10 blur-[40px] rounded-full scale-0 transition-transform duration-500 group-hover/trending:scale-110 pointer-events-none z-0" />
+
                                 <Link
                                     to={`/movie/${movie.tmdb_id || movie.movie_id}`}
-                                    className="group flex flex-row items-center transition-all duration-300 ease-out hover:scale-110 hover:z-10"
+                                    className="relative z-10 group flex flex-row items-center transition-all duration-300 ease-out hover:scale-110 hover:z-10"
                                 >
-                                    {/* The Number (p) */}
                                     <p className="transition-transform duration-300 group-hover:translate-x-[-10px]">
                                         {index + 1}
                                     </p>
-
-                                    {/* The Poster (img) */}
                                     <img
                                         src={movie.poster_url}
                                         alt={movie.title}
@@ -114,6 +112,7 @@ const home = () => {
                     </ul>
                 </section>
             )}
+
             <section className='mt-[40px] all-movies'>
                 <h2>All Movies</h2>
 
@@ -124,9 +123,11 @@ const home = () => {
                 ) : (
                     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {movieList.map((movie) => (
-                            <li key={movie.id}>
-                                {/* Directs to /movie/[id] */}
-                                <Link to={`/movie/${movie.id}`} className="block transition-transform hover:scale-105">
+                            <li key={movie.id} className="relative group/card">
+                                {/* 2. THE BACKGROUND GLOW (All Movies) */}
+                                <div className="absolute inset-[-10px] bg-purple-500/10 blur-[30px] rounded-2xl opacity-0 transition-opacity duration-500 group-hover/card:opacity-100 pointer-events-none z-0" />
+
+                                <Link to={`/movie/${movie.id}`} className="relative z-10 block transition-transform hover:scale-105">
                                     <MovieCard movie={movie} />
                                 </Link>
                             </li>
