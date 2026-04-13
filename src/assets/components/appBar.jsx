@@ -52,13 +52,21 @@ function ResponsiveAppBar() {
 
     const handleSettingClick = async (setting) => {
         handleCloseUserMenu();
+
         if (setting === 'Logout') {
             try {
+                // Attempt to tell Appwrite to kill the session
                 await logout();
-                localStorage.removeItem("user"); // Clear storage on logout
-                navigate('/login');
             } catch (error) {
-                console.error("Logout failed:", error.message);
+                // If we get a 401, the user is already technically logged out 
+                // from the server's perspective, so we just continue.
+                console.warn("Server-side logout skipped (already unauthorized):", error.message);
+            } finally {
+                // ALWAYS clear local state and redirect, regardless of API success
+                localStorage.removeItem("user");
+                navigate('/login');
+                // Optional: force a refresh if your app state doesn't update automatically
+                // window.location.reload(); 
             }
         } else if (setting === 'Login') {
             navigate('/login');
