@@ -1,34 +1,39 @@
 # Movie App
 
-A modern React application to search for movies using the [TMDB API](https://developers.themoviedb.org/3), track trending searches with [Appwrite](https://appwrite.io/), and ensure performance with debounced search input.
+A modern React application to search for movies using the [TMDB API](https://developers.themoviedb.org/3), track trending searches with [Appwrite](https://appwrite.io/), and provide a personalized experience through a polished, responsive interface.
 
 ---
+
 ## Tech Stack
 
 - **React** – Frontend framework  
+- **Material UI (MUI)** – Component library for layout, navigation, and form elements
+- **Tailwind CSS** – Utility-first styling for custom layouts  
 - **TMDB API** – Source of movie data  
-- **Appwrite** – Backend for search tracking  
-- **Tailwind CSS** – Utility-first styling  
+- **Appwrite** – Backend for authentication and search tracking  
 - **Vite** – Fast development build tool  
-- **react-use** – For useDebounce functionality
+- **react-use** – For `useDebounce()` functionality  
 
-  ---
+---
+
 ## Features
 
-- **Live Movie Search**  
-  Users can search for any movie title using a simple input field. The app fetches movie data from the TMDB API, including titles, posters, and metadata, and displays them in a responsive grid layout.
-   The search input is optimized using `useDebounce()` from the `react-use` library. This ensures that the API is **not called with every keystroke**, but only after the user stops typing for 500 milliseconds. This improves performance, reduces unnecessary API calls, and provides a smoother user experience.
+- **User Authentication**  
+  The app includes a secure **Login** and **Signup** system powered by Appwrite. The interface is built using MUI components such as **TextField**, **Box**, and other form elements to deliver a clean, professional experience with responsive behavior across devices.
+
+- **Live Movie Search & Discovery**  
+  Users can search for any movie title through an optimized input field connected to the TMDB API. Search results include movie titles, posters, and metadata displayed in a responsive layout.  
+
+  The search experience is enhanced using **useDebounce()** from the **react-use** library, ensuring API requests are sent only after the user stops typing for **500ms**. This improves performance, reduces unnecessary requests, and creates a smoother user experience.
+
+- **Detailed Movie Insights**  
+  The app includes a dedicated **Movie Details** page where users can click on any movie to explore extended information such as plot summaries, ratings, release dates, trailers, and high-quality imagery.
 
 - **Trending Section**  
-  The app tracks search frequency using Appwrite. The top 5 most searched movies are displayed in a **Trending Movies** section, updated dynamically based on real-time usage data.
+  Search activity is tracked using Appwrite. Each unique movie search is stored in the database, and repeated searches automatically increase its count. The top 5 most searched movies are displayed in a dynamic **Trending Movies** section based on real-time user activity.
+
+- **Responsive Navigation & UI**  
+  The application features a responsive navigation system built with MUI components and Tailwind CSS, the interface adapts seamlessly between desktop and mobile devices with optimized menus and layouts.
 
 - **Appwrite Integration**  
-  Each search is logged into a database using Appwrite. If a movie has already been searched before, its count is incremented; otherwise, a new record is created. This backend logic helps track movie popularity and powers the trending section.
-
-- **Responsive UI**  
-  Built with Tailwind CSS, the app is fully responsive and mobile-first. It features a clean grid layout for movies, smooth animations, and adaptive design that works across devices.
-
-- **Secure API Access**  
-  All sensitive API keys and project details are stored securely in a `.env.local` file using Vite’s environment variable support. This keeps credentials safe and makes the app easy to configure across environments.
-
-
+  Appwrite powers both authentication and database operations. It manages user accounts, stores trending search data, and handles backend logic while keeping the frontend clean and maintainable.
